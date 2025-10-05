@@ -183,9 +183,7 @@ if run_gd:
         # Parameter update (gradient descent)
         mv = mv - lr * dchi_dm
         bv = bv - lr * dchi_db
-        # keep inside plotting bounds
-        mv = float(np.clip(mv, m_min, m_max))
-        bv = float(np.clip(bv, b_min, b_max))
+        # Keep the raw GD trajectory so the plotted path reflects the true updates.
 
         # redraw with the current step
         fig_left, fig_right = build_figures(mv, bv, path)
