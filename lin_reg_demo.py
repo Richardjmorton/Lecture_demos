@@ -24,6 +24,15 @@ x, y, sigma = make_data()
 # ---------------------------
 st.sidebar.markdown("## Controls")
 
+# Apply any pending slider updates before creating the widgets
+if "pending_slider_update" in st.session_state:
+    pending = st.session_state.pop("pending_slider_update")
+    if isinstance(pending, dict):
+        if "m" in pending:
+            st.session_state["m"] = pending["m"]
+        if "b" in pending:
+            st.session_state["b"] = pending["b"]
+
 # Sliders use session_state keys so we can update after GD
 m = st.sidebar.slider("Slope (m)", min_value=-5.0, max_value=5.0, value=st.session_state.get("m", 1.0), step=0.05, key="m")
 b = st.sidebar.slider("Intercept (b)", min_value=-10.0, max_value=10.0, value=st.session_state.get("b", 0.0), step=0.1, key="b")
@@ -197,11 +206,6 @@ if run_gd:
     path.append((mv, bv, chi2_val))
     st.session_state.gd_path = path
 
-    # update sliders to final params
-    st.session_state.m = mv
-    st.session_state.b = bv
-
-    # final redraw after state update
-    fig_left, fig_right = build_figures(mv, bv, path)
-    left_placeholder.plotly_chart(fig_left, use_container_width=True)
-    right_placeholder.plotly_chart(fig_right, use_container_width=True)
+    # store final parameters for next run and rerun so sliders update cleanly
+    st.session_state["pending_slider_update"] = {"m": mv, "b": bv}
+    st.experimental_rerun()
