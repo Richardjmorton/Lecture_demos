@@ -57,9 +57,10 @@ if reset_path:
 def chi2_and_grad(mv: float, bv: float):
     r = y - (mv * x + bv)
     chi2_val = float(np.sum((r / sigma) ** 2))
-    # gradients
-    dchi_dm = float(-2.0 * np.sum(x * r / (sigma ** 2)))
-    dchi_db = float(-2.0 * np.sum(r / (sigma ** 2)))
+    # gradients (averaged per sample to keep step sizes scale-invariant)
+    n = x.size
+    dchi_dm = float(-2.0 * np.sum(x * r / (sigma ** 2)) / n)
+    dchi_db = float(-2.0 * np.sum(r / (sigma ** 2)) / n)
     return chi2_val, dchi_dm, dchi_db
 
 # Prepare chi^2 grid
