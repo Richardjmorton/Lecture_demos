@@ -13,7 +13,8 @@ st.set_page_config(page_title="Interactive Polynomial Fitting", layout="wide")
 st.sidebar.title("Controls")
 
 # Data controls
-seed = st.sidebar.number_input("Random seed", min_value=0, max_value=10_000, value=42, step=1)
+seed = st.sidebar.number_input("Random seed (Data)", min_value=0, max_value=10_000, value=42, step=1)
+seed2 = st.sidebar.number_input("Random seed (Model coeff.)", min_value=0, max_value=10_000, value=42, step=1)
 n_samples = st.sidebar.slider("Number of data points (N)", min_value=15, max_value=400, value=60, step=1)
 x_range = st.sidebar.slider("X range (symmetric)", min_value=1.0, max_value=10.0, value=3.0, step=0.5)
 true_deg = st.sidebar.slider("True polynomial degree (data generator)", 0, 10, 3, step=1)
@@ -73,12 +74,13 @@ if "data_state" not in st.session_state or regen:
     st.session_state.data_state = {}
 
 rng = np.random.default_rng(seed)
+rng2 = np.random.default_rng(seed2)
 state = st.session_state.data_state
 
 # Recompute data when key-generating params change or when regen pressed
-key = (seed, n_samples, x_range, true_deg, noise)
+key = (seed, n_samples, x_range, true_deg, noise, seed2)
 if state.get("key") != key:
-    coeffs_true = random_poly_coeffs(true_deg, rng)
+    coeffs_true = random_poly_coeffs(true_deg, rng2)
     X = rng.uniform(-x_range, x_range, size=n_samples)
     y_clean = eval_poly(coeffs_true, X)
     y = y_clean + rng.normal(0, noise, size=n_samples)
@@ -159,7 +161,7 @@ with right:
     st.code("\n".join(lines))
 
 # ---------- Tips ----------
-with st.expander("What to try"):
+with st.expander("Learning tips"):
     st.markdown(
         """
 - Increase **Model degree** beyond the **True degree** to see **overfitting** (train MSE ↓, test MSE ↑).
